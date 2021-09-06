@@ -1,0 +1,46 @@
+{% set name = "preprocessing" %}
+{% set version = "0.2.4" %}
+{% set sha256 = "366ad5245bf65b31c5904e2c92c8580e53fa21eb4c7e98e8fbc3b801682412f2" %}
+
+package:
+  name: "{{ name }}"
+  version: "{{ version }}"
+
+source:
+  url: https://github.com/SegataLab/preprocessing/archive/{{ version }}.tar.gz
+  sha256: "{{ sha256 }}"
+
+build:
+  noarch: python
+
+requirements:
+  host:
+    - python
+    - setuptools
+    - bowtie2 >=2.0.0
+    - biopython
+    - trim-galore
+  run:
+    - python
+    - setuptools
+    - bowtie2 >=2.0.0
+    - biopython
+    - trim-galore
+
+test:
+  commands:
+    - preprocess.new.py -h
+    - split_and_sort.new.py -h
+    - cat_stats.py -h
+    - fna_len.py -h
+
+about:
+  home: https://github.com/SegataLab/preprocessing
+  license: MIT License
+  license_family: MIT
+  license_file: license.txt
+  summary: |
+    Preprocessing pipeline for cleaning metagenomes sequenced on Illumina HiSeq.
+    Steps are: (1) index trimming, low-quality discarding, and removing of short
+    reads; (2) host contaminants removal; (3) splitting and sorting of reads
+    into R1, R2, and UN sets of reads.
