@@ -46,7 +46,7 @@ tormes --metadata metadata.txt --output ${OUTPUT_DIRECTORY} \
 --gene_min_cov 80 --gene_min_id 80
 ```
 
-### Running from direct metagenome assembly:
+### Running from whole assembly:
 
 ```
 tormes --metadata metadata.txt --output ${OUTPUT_DIRECTORY} \
