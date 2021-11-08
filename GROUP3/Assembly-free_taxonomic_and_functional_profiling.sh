@@ -6,7 +6,8 @@
 #Ommit this step if biobakery3 is already installed
 #conda create --name biobakery3 python=3.7
 #conda activate biobakery3
-#conda install humann -c biobakery
+#conda install humann -c biobakery3
+#conda install bbmap -c biobakery3
 
 #Create conda environment for kraken2 and bracken software
 #Ommit this step if biobakery3 is already installed
