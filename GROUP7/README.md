@@ -19,19 +19,29 @@ wget https://anaconda.org/nmquijada/tormes-1.3.0/2021.06.08.113021/download/torm
 conda env create -n MASTER-WP5g7 --file tormes-1.3.0.yml
 
 conda activate MASTER-WP5g7
-
 tormes-setup
 
+# Get bowtie2
 conda install bowtie2
+bowtie2-build ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/resfinder/sequences \
+  ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/resfinder/resfinder.bowtie --threads ${CPUS}
+bowtie2-build ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/vfdb/sequences \
+  ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/vfdb/vfdb.bowtie --threads ${CPUS}
+bowtie2-build ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/card/sequences \
+  ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/card/card.bowtie --threads ${CPUS}
 
-bowtie2-build ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/resfinder/sequences ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/resfinder/resfinder.bowtie --threads ${CPUS}
-
-bowtie2-build ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/vfdb/sequences ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/vfdb/vfdb.bowtie --threads ${CPUS}
-
-bowtie2-build ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/card/sequences ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/card/card.bowtie --threads ${CPUS}
-
-# Modify the ${PATH_TO_CONDA_ENVS} and ${CPUS} variables accordingly.
+# Get BacMet database
+mkdir ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet
+wget -P http://bacmet.biomedicine.gu.se/download/BacMet2_EXP_database.fasta \
+  ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet
+wget -P wget http://bacmet.biomedicine.gu.se/download/BacMet2_EXP.753.mapping.txt \
+  ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet
+makeblastdb -in ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet/BacMet2_EXP_database.fasta \
+  -parse_seqids -dbtype prot -hash_index -title BacMet2_EXP \
+  -out ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet/BacMet2_EXP
 ```
+> Modify the ${PATH_TO_CONDA_ENVS} and ${CPUS} variables accordingly.
+
 
 <br>
 
@@ -73,6 +83,37 @@ Further information regarding the generation of this metadata file can be found 
 
 <br>
 
+### Working with BacMet database (will be included in the next TORMES release)
+```
+# Use the *.faa files generated after gene prediction with Prodigal within TORMES
+mkdir ${OUTPUT_DIRECTORY}/bacmet
+blastp -query ${OUTPUT_DIRECTORY}/annotation/genome/genome.faa \
+  -db ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet/BacMet2_EXP \
+  -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore slen' \
+  -evalue 1e-25 -num_threads 60 -out ${OUTPUT_DIRECTORY}/bacmet/genome.blastout
+# Calculate query coverage
+cat ${OUTPUT_DIRECTORY}/bacmet/genome.blastout | awk -v OFS="\t" -F "\t" '{print $0, $14=($4-$6)*100/$13}' \
+  > ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.raw.txt
+sed -i "1iqseqid\tsseqid\tpident\tlength\tmismatch\tgapopen\tqstart\tqend\tsstart\tsend\tevalue\tbitscore\tslen\tqcov" \
+  ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.raw.txt
+
+# Select those hits with more than 60% coverage and identity and just one hit per gene (based on e value)
+tail -n+2 ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.raw.txt | awk -v OFS="\t" -F "\t" '($3 > 60)' | \
+  awk -v OFS="\t" -F "\t" '($14 > 60)' > ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.raw.tmp
+for i in $(cut -f 1 ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.raw.tmp | sort -u); do
+  grep "$i" ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.raw.tmp | head -n 1 \ 
+    >> ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.min_cov_id-60.txt
+done
+sed -i "1i$(head -n 1 ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.raw.txt)" \
+  ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.min_cov_id-60.txt
+
+## Cleaning the house
+rm -f ${OUTPUT_DIRECTORY}/bacmet/genome.blastout ${OUTPUT_DIRECTORY}/bacmet/genome.blast.bacmet.raw.tmp
+```
+> Modify "genome.faa" by either the MAGs or contigs files' names.
+
+<br>
+
 ## Output from the assembly-based pipeline
 
 ### Annotation gff files for WP5g6 usage
@@ -96,6 +137,10 @@ The antimicrobial resistance genes screening results (against the CARD database)
 The virulence genes screening results (against the VFDB) for each MAG/contigs will be found in:
 
 ```${OUTPUT_DIRECTORY}/virulence_genes/```
+
+The screening against BacMet (antibacterial biocide and metal resistance genes database) will be found in:
+
+`${OUTPUT_DIRECTORY}/bacmet/`
 
 <br>
 
