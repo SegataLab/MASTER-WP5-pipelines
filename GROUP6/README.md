@@ -32,15 +32,33 @@ There is an option to use TORMES, using a similar approach WP5g7.
 ```bash
 conda deactivate
 conda activate WP5g7
-echo -e “combinedMAGs\tGENOME\t$(realpath combined.fa) > metadata-tormes.txt
-sed -i “1iSamples\tRead1\tRead2” metadata-tormes.txt
-tormes -m metadata-tormes.txt -o tormes-combined-MAGs -t ${CPU} \
+
+# With the combined MAGs
+echo -e “combinedMAGs\tGENOME\t$(realpath combined.fa) > metadata-comb-tormes.txt
+sed -i “1iSamples\tRead1\tRead2” metadata-comb-tormes.txt
+tormes -m metadata-comb-tormes.txt -o tormes-combined-MAGs -t ${CPU} \
 --only_gene_prediction --prodigal_options “-p single” \
 --no_mlst --no_pangenome
+
+# With the individual MAGs
+for i in $(ls MAG-*.fa); do 
+  echo -e “$(echo ${i} | sed "s/.fa//")\tGENOME\t$(realpath ${i) >> metadata-ind-tormes.txt
+done
+sed -i “1iSamples\tRead1\tRead2” metadata-ind-tormes.txt
+tormes -m metadata-ind-tormes.txt -o tormes-individual-MAGs -t ${CPU} \
+--only_gene_prediction --prodigal_options “-p single” \
+--no_mlst --no_pangenome
+
 conda deactivate
 conda activate WP5g6
 ```
-> Substitute `${CPU}` with the number of CPUs you want to use
+> Substitute `${CPU}` with the number of CPUs you want to use  
+
+
+By using this command, tormes will run prodigal as: `prodigal -i -a genome.faa -d genome.fna -f gff -o genome.gff - p single`  
+The `${CPU}` value will be the number of parallel prodigal jobs to run.
+
+By using this approach, the output of tormes would work for the downsltream WP5g6 analysis and also for WP5g7.  
 
 The `combined.faa` and `combined.gff` that you need will be in `tormes-combined-MAGs/gene_prediction/`
 
