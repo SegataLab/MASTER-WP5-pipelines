@@ -53,7 +53,8 @@ makeblastdb -in ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet/BacMet2_EXP_databas
 tormes --metadata metadata.txt --output ${OUTPUT_DIRECTORY} \
 --threads ${CPUS} --no_mlst --no_pangenome --only_gene_prediction \
 --prodigal_options “-p single” \
---gene_min_cov 80 --gene_min_id 80
+--gene_min_cov 80 --gene_min_id 80 \
+--custom_genes_db "plasmidfinder"
 ```
 
 ### Running from whole assembly:
@@ -62,7 +63,8 @@ tormes --metadata metadata.txt --output ${OUTPUT_DIRECTORY} \
 tormes --metadata metadata.txt --output ${OUTPUT_DIRECTORY} \
 --threads ${CPUS} --no_mlst --no_pangenome --only_gene_prediction \
 --prodigal_options “-p meta” \
---gene_min_cov 80 --gene_min_id 80
+--gene_min_cov 80 --gene_min_id 80 \
+--custom_genes_db "plasmidfinder"
 ```
 
 <br>
