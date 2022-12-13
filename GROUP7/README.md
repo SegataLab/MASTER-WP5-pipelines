@@ -5,7 +5,7 @@
 This is the pipeline developed by MASTER WP5 group 7 for the screening of antimicrobial resistance (AMR) and virulence genes. Additionally, it will generate the gene prediction files (*gff, faa, fna*) that will be used for the metagenomic annotation by MASTER WP5 group 6.  
 The pipeline can be run in two modes depending on the input data: [assembly-based](#running-assembly-based-pipeline) and [assembly-free](#running-assembly-free-pipeline).  
 
-Authors (order as in the "MASTER_BIOINF Tools" GoogleDoc): [Narciso Martín Quijada](https://github.com/nmquijada), [José F. Cobo-Díaz](https://github.com/JoseCoboDiaz), Francesca De Filippis, [Raúl Cabrera-Rubio](https://github.com/RaulCR), [Carlos Sabater](https://github.com/CarlosSabaterSanchez) and [Francesco Rubino](https://github.com/frubino).
+Authors (order as in the "MASTER_BIOINF Tools"): [Narciso Martín Quijada](https://github.com/nmquijada), [José F. Cobo-Díaz](https://github.com/JoseCoboDiaz), Francesca De Filippis, [Raúl Cabrera-Rubio](https://github.com/RaulCR), [Carlos Sabater](https://github.com/CarlosSabaterSanchez) and [Francesco Rubino](https://github.com/frubino).
 
 <br>
 
@@ -40,7 +40,7 @@ makeblastdb -in ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet/BacMet2_EXP_databas
   -parse_seqids -dbtype prot -hash_index -title BacMet2_EXP \
   -out ${PATH_TO_CONDA_ENVS}/MASTER-WP5g7/db/bacmet/BacMet2_EXP
 ```
-> Modify the ${PATH_TO_CONDA_ENVS} and ${CPUS} variables accordingly.
+> Modify the ```${PATH_TO_CONDA_ENVS}``` and ```${CPUS}``` variables accordingly.
 
 
 <br>
